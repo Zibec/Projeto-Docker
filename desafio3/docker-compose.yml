@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: meubanco
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - minha-rede
+
+  cache:
+    image: redis:7
+    container_name: cache
+    networks:
+      - minha-rede
+
+  web:
+    build: .
+    container_name: web
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_NAME: meubanco
+      DB_USER: postgres
+      DB_PASS: postgres
+      CACHE_HOST: cache
+    depends_on:
+      - db
+      - cache
+    networks:
+      - minha-rede
+
+networks:
+  minha-rede:
+
+volumes:
+  pgdata:
